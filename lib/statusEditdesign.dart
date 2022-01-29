@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+int likes =0;
+int dislikes=0;
+dynamic Idnumber;
 
 class Editdialog extends StatefulWidget {
   Map data;
@@ -49,9 +54,15 @@ class _EditdialogState extends State<Editdialog> {
         Map<String,dynamic> newpost={
           "title":titlecontroler.text,
           "description":descriptioncontroler.text,
-          "url":downloadedurl
+          "url":downloadedurl,
+          'name': FirebaseAuth.instance.currentUser.email,
+          "id":Idnumber,
+          "like":likes,
+          'dislike':dislikes,
+          'nstatus':"no",
+          'ystatus':"no",
         };
-        await db.collection("post").doc(widget.data["id"]).set(newpost);
+        await db.collection("post").doc(widget.data["id"]).update(newpost);
         Navigator.of(context).pop();
       }
       catch (e) {
@@ -79,3 +90,5 @@ class _EditdialogState extends State<Editdialog> {
     );
   }
 }
+
+

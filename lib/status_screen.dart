@@ -79,6 +79,8 @@ class _StatusScreenState extends State<StatusScreen> {
           "id":Idnumber,
           "like":likes,
           'dislike':dislikes,
+          'ystatus':"no",
+          'nstatus':"no",
         });
 
         await db.collection("allpost").add({
@@ -89,6 +91,8 @@ class _StatusScreenState extends State<StatusScreen> {
             "id":Idnumber,
           "like":likes,
           'dislike':dislikes,
+          'nstatus':"no",
+          'ystatus':"no",
         });
 
         titlecontroler.clear();

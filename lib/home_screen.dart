@@ -1,12 +1,19 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:menu/chatappChatappScreen.dart';
 import 'package:menu/groups.dart';
 import 'package:menu/tab.dart';
 import 'package:menu/status_screen.dart';
 import 'package:menu/chats_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path/path.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+User loggedInUser;
 var activeTabTextStyle = TextStyle(
   fontSize: 16,
 );
@@ -24,6 +31,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   TabController _tabController;
   int _currentTab = 1;
   GlobalKey<ScaffoldState> _key = GlobalKey();
+  final messageTextController=TextEditingController();
+  final _firestore = FirebaseFirestore.instance;
+  final _auth =FirebaseAuth.instance;
+  Stream messStream = FirebaseFirestore.instance.collection('messages').snapshots();
+  String userMessage;
+  String imagePath;
 
   @override
   void initState() {
@@ -50,15 +63,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         title: Text("  ⚡️Chatapp",style:TextStyle(fontSize: 33),
           ),
         actions: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () {},
-                child: Icon(
-                  Icons.account_box_sharp,
-                  size: 26.0,
-                ),
-              )
+          TextButton(
+            onPressed: ()async {
+              final ImagePicker _picker=ImagePicker();
+              final image =await _picker.pickImage(source: ImageSource.gallery);
+              setState(() {
+                imagePath=image.path;
+              });
+              click();
+              try{
+                String imagename=basename(imagePath);
+                firebase_storage.Reference ref =
+                firebase_storage.FirebaseStorage.instance.ref('/$imagename');
+                File file=File(imagePath);
+                await ref.putFile(file);
+                String downloadedurl=await ref.getDownloadURL();
+                _firestore.collection('account').add({
+                  'pic':downloadedurl,
+                  'sender':loggedInUser.email,
+                });
+                setState(() {
+                  flag=true;
+                });
+              }catch(e)
+              {
+                print(e.message);
+              }
+            },
+            child: Icon(Icons.account_box_sharp, color: Colors.white,),
           ),
           IconButton(icon: Icon(Icons.logout),color: Colors.white, onPressed: () {
             FirebaseAuth.instance.signOut();
@@ -124,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             InkWell(
               onTap: () {
-                _showBottomSheet(context);
+               // _showBottomSheet(context);
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

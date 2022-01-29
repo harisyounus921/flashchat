@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:menu/chatappConstant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,7 @@ import 'package:path/path.dart';
 import 'dart:io';
 
 User loggedInUser;
+bool flag=false;
 
 class ChatScreen extends StatefulWidget {
   static String id = "chat_screen";
@@ -30,7 +32,6 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     getCurrentUser();
   }
-
   void getCurrentUser()async{
     try {
       final user =await _auth.currentUser;
@@ -91,7 +92,6 @@ print(e);
                             userMessage=value;
                           },
                           decoration: InputDecoration(
-
                               hintText: 'Type your message',
                               hintStyle: TextStyle(
                                 color: Colors.white,
@@ -101,14 +101,24 @@ print(e);
                         ),
                       ),
                     ),
-                    IconButton(icon: Icon(EvaIcons.close), color: Colors.white,
+                   /* IconButton(icon: Icon(EvaIcons.close), color: Colors.white,
                         onPressed: () {   messageTextController.clear();}),
+                    TextButton(
+                      onPressed: () {
+                        messageTextController.clear();
+                      },
+                      child: CircleAvatar(
+                        radius: 23,
+                        backgroundColor: Colors.lightBlueAccent,
+                        child: Icon(EvaIcons.close, color: Colors.white,),
+                      ),
+                    ),*/
                     TextButton(
                       onPressed: ()async {
                         final ImagePicker _picker=ImagePicker();
-                        final image =await _picker.pickImage(source: ImageSource.gallery);
+                        final camera =await _picker.pickImage(source: ImageSource.camera);
                         setState(() {
-                          imagePath=image.path;
+                          imagePath=camera.path;
                         });
                         try{
                           String imagename=basename(imagePath);
@@ -122,6 +132,44 @@ print(e);
                             'sender':loggedInUser.email,
                             'name':loggedInUser.email,
                             'type':"pic",
+                            "time":DateFormat('hh:mm a').format(DateTime.now()),
+                          });
+                          setState(() {
+                            flag=true;
+                          });
+                        }catch(e)
+                        {
+                          print(e.message);
+                        }
+                      },
+                       /// if(flag)?
+                       //child:  Icon(Icons.add, color: Colors.white,):
+                       child: Icon(Icons.camera, color: Colors.white,),
+                    ),
+                    TextButton(
+                      onPressed: ()async {
+                        final ImagePicker _picker=ImagePicker();
+                        final image =await _picker.pickImage(source: ImageSource.gallery);
+                        setState(() {
+                          imagePath=image.path;
+                        });
+                        click();
+                        try{
+                          String imagename=basename(imagePath);
+                          firebase_storage.Reference ref =
+                          firebase_storage.FirebaseStorage.instance.ref('/$imagename');
+                          File file=File(imagePath);
+                          await ref.putFile(file);
+                          String downloadedurl=await ref.getDownloadURL();
+                          _firestore.collection('messages').add({
+                            'text':downloadedurl,
+                            'sender':loggedInUser.email,
+                            'name':loggedInUser.email,
+                            'type':"pic",
+                            "time": DateFormat('kk:mm a').format(DateTime.now()),
+                          });
+                          setState(() {
+                            flag=true;
                           });
                         }catch(e)
                         {
@@ -133,12 +181,17 @@ print(e);
                     TextButton(
                       onPressed: () {
                         messageTextController.clear();
+                        if(userMessage!=null)
                         _firestore.collection('messages')//.orderBy()
                             .add({
                           'text':userMessage,
                           'sender':loggedInUser.email,
                           'name':loggedInUser.email,
                           'type':"text",
+                          "time":DateFormat('hh:mm a').format(DateTime.now()),
+                        });
+                        setState(() {
+                          userMessage=null;
                         });
                       },
                       child: CircleAvatar(
@@ -159,12 +212,32 @@ print(e);
 }
 
 
+class click extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(onPressed: (){}, child: Text("DOWN")),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
 class MessageBubble extends StatelessWidget {
-  MessageBubble({this.type,this.sender, this.text, this.isMe});
+  MessageBubble({@required this.time,this.type,this.sender, this.text, this.isMe});
+  final String time;
   final String sender;
   final String text;
   final String type;
   final bool isMe;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -203,8 +276,11 @@ class MessageBubble extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
               child: Text(text, style: TextStyle(
-                        color: isMe ? Colors.white : Colors.black54, fontSize: 15.0,),),
-            )
+                        color: isMe ? Colors.white : Colors.black54, fontSize: 17.0,),),
+            ),
+                Text(time, style: TextStyle(
+                  color: Colors.black, fontSize: 15.0,),),
+                //Timestamp(time),
               ],
             ),
           ),
@@ -235,7 +311,8 @@ Widget build(BuildContext context) {
           final messageSender=message.get('sender');
           final currentUser=loggedInUser.email;
           final messageType=message.get('type');
-           final messageBubble=MessageBubble(type:messageType,sender: messageSender,text: messageText,isMe:currentUser==messageSender,);
+          final tim=message.get('time');
+           final messageBubble=MessageBubble(time: tim,type:messageType,sender: messageSender,text: messageText,isMe:currentUser==messageSender,);
           messageBubbles.add(messageBubble);
         }
         return Expanded(child: ListView(
@@ -246,3 +323,4 @@ Widget build(BuildContext context) {
   );
 }
 }
+

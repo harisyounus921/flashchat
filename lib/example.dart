@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:menu/chatappConstant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -146,6 +147,7 @@ class _ChatState extends State<Chat> {
                           'sender':loggedInUser.email,
                           'name':loggedInUser.email,
                           'type':"pic",
+                          "time":DateFormat('hh:mm a').format(DateTime.now()),
                         });
                       }catch(e)
                       {
@@ -162,6 +164,10 @@ class _ChatState extends State<Chat> {
                         'message':userMessage,
                         'name':loggedInUser.email,
                         'type':"text",
+                        "time":DateFormat('hh:mm a').format(DateTime.now()),
+                      });
+                      setState(() {
+                        userMessage=null;
                       });
                     },
                     child: CircleAvatar(
@@ -181,8 +187,8 @@ class _ChatState extends State<Chat> {
 }
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble({this.type,this.sender, this.text, this.isMe});
-
+  MessageBubble({@required this.time,this.type,this.sender, this.text, this.isMe});
+  final time;
   final String sender;
   final String text;
   final String type;
@@ -232,6 +238,8 @@ class MessageBubble extends StatelessWidget {
                     ),
                   ),
                 ),
+                Text(time.toString(), style: TextStyle(
+                  color: isMe ? Colors.white : Colors.black54, fontSize: 15.0,),),
               ],
             ),
           ),
@@ -258,7 +266,8 @@ class MessagesStream extends StatelessWidget {
             final messageSender=message.get('name');
             final messageType=message.get('type');
             final currentUser=loggedInUser.email;
-            final messageBubble=MessageBubble(type:messageType,sender: messageSender,text: messageText,isMe:currentUser==messageSender,);
+            final tim=message.get('time');
+            final messageBubble=MessageBubble(time: tim,type:messageType,sender: messageSender,text: messageText,isMe:currentUser==messageSender,);
             messageBubbles.add(messageBubble);
           }
           return Expanded(child: ListView(

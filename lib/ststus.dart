@@ -72,15 +72,19 @@ class _stausesState extends State<stauses> {
                     ),
                     onPressed: ()async{
                       setState(() {
-                       //LSign=LikeButton();
-                       Icon(Icons.thumb_up,color: Colors.blueAccent,);
+                        LSign= Icon(Icons.thumb_up,color: Colors.blueAccent,);//LikeButton();
                       });
-                      Map<String,dynamic> newpost={
-                        "like":FieldValue.increment(1),
-                     //   widget.data["like"]:FieldValue.increment(1),
-                      };
-                      await FirebaseFirestore.instance.collection("post").doc(widget.data["id"])
-                          .update(newpost);
+                     // if(widget.data["ystatus"]=="no")
+                              {
+                        Map<String, dynamic> newpost = {
+                          "like": FieldValue.increment(1),
+                          "ystatus":"yes",
+                          //   widget.data["like"]:FieldValue.increment(1),
+                        };
+                        await FirebaseFirestore.instance.collection("post").doc(
+                            widget.data["id"])
+                            .update(newpost);
+                      }
                     },
                   ),
                   Text(widget.data["like"].toString(),style: TextStyle(//description
@@ -105,11 +109,16 @@ class _stausesState extends State<stauses> {
                       setState(() {
                         DLSign=Icon(Icons.thumb_down,color: Colors.blueAccent,);
                       });
-                      Map<String,dynamic> newpost={
-                        "dislike":FieldValue.increment(1),
-                      };
-                      await FirebaseFirestore.instance.collection("post").doc(widget.data["id"])
-                          .update(newpost);
+                     // if(widget.data["nstatus"]=="no")
+                      {
+                        Map<String, dynamic> newpost = {
+                          "dislike": FieldValue.increment(1),
+                          "nstatus":"yes"
+                        };
+                        await FirebaseFirestore.instance.collection("post").doc(
+                            widget.data["id"])
+                            .update(newpost);
+                      }
                     },
                   ),
                   Text(widget.data['dislike'].toString(),style: TextStyle(

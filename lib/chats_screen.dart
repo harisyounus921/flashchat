@@ -17,6 +17,7 @@ class HomeScreen1 extends StatefulWidget {
 
 class _HomeScreen1State extends State<HomeScreen1> with WidgetsBindingObserver {
   Map<String, dynamic> userMap;
+  Map<String, dynamic> user;
   bool isLoading = false;
   bool showSpinner=false;
 
@@ -56,6 +57,18 @@ class _HomeScreen1State extends State<HomeScreen1> with WidgetsBindingObserver {
       });
       print(userMap);
     });
+
+    await _firestore
+        .collection('account')
+        .where("text")
+        .get()
+        .then((value) {
+      setState(() {
+        user = value.docs[0].data();
+      });
+      print(user);
+    });
+
   }
 
   @override
@@ -122,7 +135,8 @@ class _HomeScreen1State extends State<HomeScreen1> with WidgetsBindingObserver {
                     ),
                   );
                 },
-                leading: CircleAvatar(radius: 30, backgroundImage: AssetImage('assets/me.jpg')),
+               // leading: CircleAvatar(radius: 30, backgroundImage: AssetImage('assets/me.jpg')),
+                leading: CircleAvatar(radius: 30, backgroundImage: AssetImage("assets/me.jpg")),
                 title: Text(
                   userMap['sender'],
                   style: TextStyle(
