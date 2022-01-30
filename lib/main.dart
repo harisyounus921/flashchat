@@ -7,6 +7,8 @@ import 'package:menu/chatappWelcomeScreen.dart';
 import 'package:menu/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:menu/setting.dart';
+import 'package:menu/video.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chats_screen.dart';
@@ -29,7 +31,8 @@ class MyApp extends StatelessWidget {
         RegistrationScreen.id: (context) => RegistrationScreen(),
         ChatScreen.id: (context) => ChatScreen(),
         HomeScreen.id:(context)=>HomeScreen(),
-       // HomeScreen1.id:(context)=>HomeScreen1(),
+        SettingsScreen.id:(context)=>SettingsScreen(),
+        VideoViewPage.id:(context)=>VideoViewPage(),
       },
     );
   }

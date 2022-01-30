@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:menu/chatappConstant.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 User loggedInUser;
 int likes =0;
@@ -54,7 +55,14 @@ class _StatusScreenState extends State<StatusScreen> {
       setState(() {
         imagePath=image.path;
       });
-     // final camera =await _picker.pickImage(source: ImageSource.camera);
+    }
+
+    void pickpicture()async{
+      final ImagePicker _picker=ImagePicker();
+      final image =await _picker.pickImage(source: ImageSource.camera);
+      setState(() {
+        imagePath=image.path;
+      });
     }
 
     void submit() async{
@@ -111,50 +119,6 @@ class _StatusScreenState extends State<StatusScreen> {
         child: SafeArea(
           child:Column(
             children: [
-              Visibility(
-                  child: Column(
-                children: [
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  TextFormField(
-                    controller: titlecontroler,
-                    decoration:  ktextfeilddecoration.copyWith(
-                        hintText: "Enter your Title."),
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  TextFormField(
-                    controller: descriptioncontroler,
-                    decoration: ktextfeilddecoration.copyWith(
-                        hintText: "Enter Description.")
-                  ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(onPressed: pickimage, style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
-                        padding: MaterialStateProperty.all(EdgeInsets.all(13)),
-                      ),child: Icon(Icons.image)),
-                      Buttons(
-                        title: "UPLOAD",
-                        color: Colors.lightBlueAccent,
-                       // child: Icon(Icons.image),
-                        onpress: submit,
-                      ),
-                    ],
-                  ),
-                  Divider(
-                    color: Colors.black,
-                  ),
-                ],
-              ),
-                visible: value,
-              ),
              Expanded(
                child: Container(
                  margin: const EdgeInsets.only(top: 20),
@@ -187,9 +151,70 @@ class _StatusScreenState extends State<StatusScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.lightBlueAccent,
         onPressed: (){
-        setState(() {
-          value=true;
-        });
+          showModalBottomSheet(context: context, builder: (context)=>Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft:Radius.circular(20.0),
+                    topRight:Radius.circular(20.0),
+                  )
+              ),
+              child: Column(
+              children: [
+                SizedBox(
+                  height: 20.0,
+                ),
+                Text("Uplode an image",style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontSize: 30.0,
+                  color:Colors.lightBlueAccent,
+                )),
+                SizedBox(
+                  height: 20.0,
+                ),
+                TextFormField(
+                  controller: titlecontroler,
+                 // autofocus: true,
+                  decoration:  ktextfeilddecoration.copyWith(
+                      hintText: "Enter your Title."),
+                ),
+                SizedBox(
+                  height: 15.0,
+                ),
+                TextFormField(
+                    controller: descriptioncontroler,
+                    decoration: ktextfeilddecoration.copyWith(
+                        hintText: "Enter Description.")
+                ),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(onPressed: pickimage, style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
+                      padding: MaterialStateProperty.all(EdgeInsets.all(13)),
+                    ),child: Icon(Icons.image)),
+                    Buttons(
+                      title: "UPLOAD",
+                      color: Colors.lightBlueAccent,
+                      // child: Icon(Icons.image),
+                      onpress: submit,
+                    ),
+                    ElevatedButton(onPressed: pickpicture, style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
+                      padding: MaterialStateProperty.all(EdgeInsets.all(13)),
+                    ),child: Icon(Icons.camera)),
+                  ],
+                ),
+                Divider(
+                  color: Colors.black,
+                ),
+              ],
+            ),),
+          );
       },
         foregroundColor: Colors.white,
         child: Icon(Icons.image),
@@ -198,3 +223,4 @@ class _StatusScreenState extends State<StatusScreen> {
     );
   }
 }
+

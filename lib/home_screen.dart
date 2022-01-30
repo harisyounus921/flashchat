@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:menu/setting.dart';
 
 User loggedInUser;
 var activeTabTextStyle = TextStyle(
@@ -63,14 +64,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         title: Text("  ⚡️Chatapp",style:TextStyle(fontSize: 33),
           ),
         actions: <Widget>[
-          TextButton(
+         /* TextButton(
             onPressed: ()async {
               final ImagePicker _picker=ImagePicker();
               final image =await _picker.pickImage(source: ImageSource.gallery);
               setState(() {
                 imagePath=image.path;
               });
-              click();
               try{
                 String imagename=basename(imagePath);
                 firebase_storage.Reference ref =
@@ -91,10 +91,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               }
             },
             child: Icon(Icons.account_box_sharp, color: Colors.white,),
-          ),
-          IconButton(icon: Icon(Icons.logout),color: Colors.white, onPressed: () {
-            FirebaseAuth.instance.signOut();
-            Navigator.of(context).popUntil((route) => route.isFirst);}),
+          ),*/
+          IconButton(icon: Icon(Icons.account_circle),color: Colors.white, onPressed: () {
+            Navigator.pushNamed(context, SettingsScreen.id);}),
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {},
+                child: Icon(
+                    Icons.more_vert
+                ),
+              )
+          )
         ],
         bottom: TabBar(
           labelStyle: activeTabTextStyle,

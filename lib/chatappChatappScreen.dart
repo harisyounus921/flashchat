@@ -13,6 +13,7 @@ import 'dart:io';
 
 User loggedInUser;
 bool flag=false;
+dynamic c=Colors.lightBlueAccent;
 
 class ChatScreen extends StatefulWidget {
   static String id = "chat_screen";
@@ -27,6 +28,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Stream messStream = FirebaseFirestore.instance.collection('messages').snapshots();
   String userMessage;
   String imagePath;
+  bool value=false;
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,32 @@ print(e);
     }
   }
 
+  void submit() async{
+    try{
+      String imagename=basename(imagePath);
+      firebase_storage.Reference ref =
+      firebase_storage.FirebaseStorage.instance.ref('/$imagename');
+      File file=File(imagePath);
+      await ref.putFile(file);
+      String downloadedurl=await ref.getDownloadURL();
+      _firestore.collection('messages').add({
+        'text':downloadedurl,
+        'sender':loggedInUser.email,
+        'name':loggedInUser.email,
+        'type':"pic",
+        "time":DateFormat('hh:mm a').format(DateTime.now()),
+      });
+      setState(() {
+            value=false;
+        flag=true;
+          //  c= Colors.yellow;
+      });
+    }catch(e)
+    {
+      print(e.message);
+    }
+  }
+
     @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,9 +81,6 @@ print(e);
         backgroundColor: Colors.lightBlueAccent,
         leading: null,
         actions: [
-          IconButton(icon: Icon(Icons.logout),color: Colors.white, onPressed: () {
-            _auth.signOut();
-          Navigator.of(context).popUntil((route) => route.isFirst);}),
           Padding(
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
@@ -120,30 +145,54 @@ print(e);
                         setState(() {
                           imagePath=camera.path;
                         });
-                        try{
-                          String imagename=basename(imagePath);
-                          firebase_storage.Reference ref =
-                          firebase_storage.FirebaseStorage.instance.ref('/$imagename');
-                          File file=File(imagePath);
-                          await ref.putFile(file);
-                          String downloadedurl=await ref.getDownloadURL();
-                          _firestore.collection('messages').add({
-                            'text':downloadedurl,
-                            'sender':loggedInUser.email,
-                            'name':loggedInUser.email,
-                            'type':"pic",
-                            "time":DateFormat('hh:mm a').format(DateTime.now()),
-                          });
-                          setState(() {
-                            flag=true;
-                          });
-                        }catch(e)
-                        {
-                          print(e.message);
-                        }
+
+                        showModalBottomSheet(context: context, builder: (context)=>Visibility(
+                          visible: value,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                  topLeft:Radius.circular(20.0),
+                                  topRight:Radius.circular(20.0),
+                                )
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Text("Uplode an image",style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 30.0,
+                                  color:Colors.lightBlueAccent,
+                                )),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                SizedBox(
+                                  height: 15.0,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Buttons(
+                                      title: "UPLOAD",
+                                      color: Colors.lightBlueAccent,
+                                      // child: Icon(Icons.image),
+                                       onpress: submit,
+                                    ),
+                                  ],
+                                ),
+                                Divider(
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),),
+                          //visible: value,
+                        ),
+                        );
                       },
-                       /// if(flag)?
-                       //child:  Icon(Icons.add, color: Colors.white,):
                        child: Icon(Icons.camera, color: Colors.white,),
                     ),
                     TextButton(
@@ -153,28 +202,52 @@ print(e);
                         setState(() {
                           imagePath=image.path;
                         });
-                        click();
-                        try{
-                          String imagename=basename(imagePath);
-                          firebase_storage.Reference ref =
-                          firebase_storage.FirebaseStorage.instance.ref('/$imagename');
-                          File file=File(imagePath);
-                          await ref.putFile(file);
-                          String downloadedurl=await ref.getDownloadURL();
-                          _firestore.collection('messages').add({
-                            'text':downloadedurl,
-                            'sender':loggedInUser.email,
-                            'name':loggedInUser.email,
-                            'type':"pic",
-                            "time": DateFormat('kk:mm a').format(DateTime.now()),
-                          });
-                          setState(() {
-                            flag=true;
-                          });
-                        }catch(e)
-                        {
-                          print(e.message);
-                        }
+
+                        showModalBottomSheet(context: context, builder: (context)=>Visibility(
+                          visible: true,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                  topLeft:Radius.circular(20.0),
+                                  topRight:Radius.circular(20.0),
+                                )
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Text("Uplode an image",style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 30.0,
+                                  color:Colors.lightBlueAccent,
+                                )),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                SizedBox(
+                                  height: 15.0,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [Buttons(
+                                        title: "UPLOAD",
+                                        color: Colors.lightBlueAccent,
+                                        onpress: submit,
+                                      ),
+                                  ],
+                                ),
+                                Divider(
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),),
+                          //visible: value,
+                        ),
+                        );
+                       // Navigator.pop(context);
                       },
                         child: Icon(Icons.image, color: Colors.white,),
                     ),
@@ -212,21 +285,7 @@ print(e);
 }
 
 
-class click extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Container(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(onPressed: (){}, child: Text("DOWN")),
-          ],
-        ),
-      ),
-    );
-  }
-}
+
 
 
 
