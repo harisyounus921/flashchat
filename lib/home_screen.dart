@@ -64,35 +64,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         title: Text("  ⚡️Chatapp",style:TextStyle(fontSize: 33),
           ),
         actions: <Widget>[
-         /* TextButton(
-            onPressed: ()async {
-              final ImagePicker _picker=ImagePicker();
-              final image =await _picker.pickImage(source: ImageSource.gallery);
-              setState(() {
-                imagePath=image.path;
-              });
-              try{
-                String imagename=basename(imagePath);
-                firebase_storage.Reference ref =
-                firebase_storage.FirebaseStorage.instance.ref('/$imagename');
-                File file=File(imagePath);
-                await ref.putFile(file);
-                String downloadedurl=await ref.getDownloadURL();
-                _firestore.collection('account').add({
-                  'pic':downloadedurl,
-                  'sender':loggedInUser.email,
-                });
-                setState(() {
-                  flag=true;
-                });
-              }catch(e)
-              {
-                print(e.message);
-              }
-            },
-            child: Icon(Icons.account_box_sharp, color: Colors.white,),
-          ),*/
-          IconButton(icon: Icon(Icons.account_circle),color: Colors.white, onPressed: () {
+          IconButton(icon: Icon(Icons.account_circle),color: Colors.white,iconSize: 30, onPressed: () {
             Navigator.pushNamed(context, SettingsScreen.id);}),
           Padding(
               padding: EdgeInsets.only(right: 20.0),

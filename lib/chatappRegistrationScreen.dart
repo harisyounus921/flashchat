@@ -69,18 +69,6 @@ bool showSpinner=false;
               SizedBox(
                 height: 48.0,
               ),
-              /*TextField(
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.name,
-                  onChanged: (value) {
-                    name=value.trim();
-                  },
-                  decoration: ktextfeilddecoration.copyWith(
-                    //   prefixText: "harisyounus921@gmail.com",
-                      hintText: "Enter your name.")),
-              SizedBox(
-                height: 8.0,
-              ),*/
               TextField(
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.emailAddress,
@@ -118,9 +106,10 @@ bool showSpinner=false;
                        // .then((value) async {
                       User user = FirebaseAuth.instance.currentUser;
 
-                      await FirebaseFirestore.instance.collection("emails").doc(user.uid).set({
+                      await FirebaseFirestore.instance.collection("account").doc(user.uid).set({
                         'email': email,
                         'password':paswords,
+                        'picture':"assets/man2.png",
                     });
                     if(newuser!=null){
                       Navigator.pushNamed(context, HomeScreen.id,arguments: name);

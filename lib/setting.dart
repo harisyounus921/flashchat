@@ -1,6 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:menu/chatappChatappScreen.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:path/path.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class SettingsScreen extends StatefulWidget {
   static String id = "setting_screen";
@@ -14,6 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool clockInBackground = true;
   bool dlockInBackground = false;
   bool notificationsEnabled =false;
+  String imagePath;
 
   @override
   Widget build(BuildContext context) {
@@ -26,14 +34,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SizedBox(
             height: 20.0,
           ),
-          CircleAvatar(radius: 75, backgroundImage: AssetImage("assets/me.jpg")),
+          Stack(
+            children: [
+              CircleAvatar(radius: 75, backgroundImage: AssetImage("assets/man2.png")),
+              Positioned(
+                top: 90,
+                left:85,
+                child:
+                  TextButton(
+            onPressed: ()async {
+              final ImagePicker _picker=ImagePicker();
+              final image =await _picker.pickImage(source: ImageSource.gallery);
+              setState(() {
+                imagePath=image.path;
+              });
+              try{
+                String imagename=basename(imagePath);
+                firebase_storage.Reference ref =
+                firebase_storage.FirebaseStorage.instance.ref('/$imagename');
+                File file=File(imagePath);
+                await ref.putFile(file);
+                String downloadedurl=await ref.getDownloadURL();
+                FirebaseFirestore.instance.collection('account').add({
+                  'email': loggedInUser.email,
+                 'password':"12345678",
+                  'picture':downloadedurl
+                });
+                setState(() {
+                  flag=true;
+                });
+              }catch(e)
+              {
+                print(e.message);
+              }
+            },
+            child: Icon(Icons.account_circle, color: Colors.black87,size: 45,),
+          ),
+                ),
+            ],
+          ),
           SizedBox(
             height: 20.0,
           ),
-          Text("data",  style: TextStyle(
+          Text("harisyounus921@gmail.com",  style: TextStyle(
             fontSize: 22.0,
             color: Colors.lightBlueAccent,
           ),),
+          SizedBox(
+            height: 20.0,
+          ),
           Expanded(child: buildSettingsList()),
         ],
       ),
