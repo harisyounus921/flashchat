@@ -1,4 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:menu/Chatroom.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,6 +10,7 @@ import 'ZgroupChatRoom.dart';
 import 'chatappChatappScreen.dart';
 import 'example.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeScreen1 extends StatefulWidget {
   @override
@@ -135,7 +137,6 @@ class _HomeScreen1State extends State<HomeScreen1> with WidgetsBindingObserver {
                     ),
                   );
                 },
-               // leading: CircleAvatar(radius: 30, backgroundImage: AssetImage('assets/me.jpg')),
                 leading: CircleAvatar(radius: 30, backgroundImage: AssetImage("assets/me.jpg")),
                 title: Text(
                   userMap['sender'],
@@ -148,7 +149,12 @@ class _HomeScreen1State extends State<HomeScreen1> with WidgetsBindingObserver {
                 subtitle: Text(userMap['sender']),
                 trailing: Icon(Icons.message, color: Colors.black),
               )
-                  : Container(),
+                  : //Container(child:
+              Center(
+                  child: Lottie.network("https://assets4.lottiefiles.com/packages/lf20_t9nbbl1t.json"),
+                //LottieBuilder//.asset("assets/sad.gif",),
+                ),
+             // ),
             ],
       ),
         ),

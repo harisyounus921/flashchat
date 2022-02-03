@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:menu/ststus.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:menu/chatappChatappScreen.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'chatappConstant.dart';
 
 class SettingsScreen extends StatefulWidget {
   static String id = "setting_screen";
@@ -23,6 +24,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled =false;
   String imagePath;
 
+  void pickimage()async{
+    final ImagePicker _picker=ImagePicker();
+    final image =await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      imagePath=image.path;
+    });
+    try{
+      String imagename=basename(imagePath);
+
+      firebase_storage.Reference ref =
+      firebase_storage.FirebaseStorage.instance.ref('/$imagename');
+
+      File file=File(imagePath);
+      await ref.putFile(file);
+      String downloadedurl=await ref.getDownloadURL();
+      FirebaseFirestore db=FirebaseFirestore.instance;
+      User user = FirebaseAuth.instance.currentUser;
+      Map<String, dynamic> newpost = {
+        'picture':downloadedurl,
+      };
+      await db.collection("account").doc(user.uid).update(newpost);
+    }catch(e)
+    {
+      print(e.message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,39 +64,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Stack(
             children: [
-              CircleAvatar(radius: 75, backgroundImage: AssetImage("assets/man2.png")),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('account').snapshots(),
+                builder: ( context, snapshot)
+                {
+                  if (snapshot.hasError) {
+                    return Text('Something went wrong');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text("Loading");
+                  }
+                  if (!snapshot.hasData) {
+                    return Text("Loading data please wait!");
+                  }
+                  return Column(
+                    children: snapshot.data.docs.map((DocumentSnapshot document) {
+                      Map data = document.data();
+                      String id=document.id;
+                      data["id"]=id;
+                      return (data["id"]==FirebaseAuth.instance.currentUser.uid)?
+                       CircleAvatar(radius: 75, backgroundImage: NetworkImage("${data["picture"]}"),
+                          backgroundColor: Colors.transparent,)
+                      : Container();
+                    }).toList(),
+                  );
+                },
+              ),
               Positioned(
                 top: 90,
                 left:85,
-                child:
-                  TextButton(
-            onPressed: ()async {
-              final ImagePicker _picker=ImagePicker();
-              final image =await _picker.pickImage(source: ImageSource.gallery);
-              setState(() {
-                imagePath=image.path;
-              });
-              try{
-                String imagename=basename(imagePath);
-                firebase_storage.Reference ref =
-                firebase_storage.FirebaseStorage.instance.ref('/$imagename');
-                File file=File(imagePath);
-                await ref.putFile(file);
-                String downloadedurl=await ref.getDownloadURL();
-                FirebaseFirestore.instance.collection('account').add({
-                  'email': loggedInUser.email,
-                 'password':"12345678",
-                  'picture':downloadedurl
-                });
-                setState(() {
-                  flag=true;
-                });
-              }catch(e)
-              {
-                print(e.message);
-              }
-            },
-            child: Icon(Icons.account_circle, color: Colors.black87,size: 45,),
+                child:   TextButton(onPressed: pickimage,
+                   child: Icon(Icons.account_circle_rounded, color: Colors.black87,size: 45,),
           ),
                 ),
             ],
@@ -76,7 +102,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SizedBox(
             height: 20.0,
           ),
-          Text("harisyounus921@gmail.com",  style: TextStyle(
+          //Buttons(title: "UPLOAD", color: Colors.lightBlueAccent, onpress: pickimage,),
+          Text(FirebaseAuth.instance.currentUser.email,  style: TextStyle(
             fontSize: 22.0,
             color: Colors.lightBlueAccent,
           ),),
@@ -84,6 +111,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             height: 20.0,
           ),
           Expanded(child: buildSettingsList()),
+         /* Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: postStream,
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot)
+                {
+                  return ListView(
+                    children: snapshot.data.docs.map((DocumentSnapshot document) {
+                      Map data = document.data();
+                      String id=document.id;
+                      data["id"]=id;
+                      return stauses(data:data,);
+                    }).toList(),
+                  );
+                },
+              ),
+            ),*/
         ],
       ),
     );

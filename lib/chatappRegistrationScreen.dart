@@ -109,6 +109,7 @@ bool showSpinner=false;
                       await FirebaseFirestore.instance.collection("account").doc(user.uid).set({
                         'email': email,
                         'password':paswords,
+                        "id":user.uid,
                         'picture':"assets/man2.png",
                     });
                     if(newuser!=null){
